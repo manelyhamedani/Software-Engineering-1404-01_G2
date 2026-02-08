@@ -1,0 +1,281 @@
+[
+  {
+    "model": "team4.province",
+    "pk": 1,
+    "fields": {
+      "name_fa": "آذربایجان شرقی",
+      "name_en": "East Azarbaijan",
+      "location": "POINT(46.2682109 37.9035733)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 2,
+    "fields": {
+      "name_fa": "آذربایجان غربی",
+      "name_en": "Western Azerbaijan",
+      "location": "POINT(46.2682109 37.9035733)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 3,
+    "fields": {
+      "name_fa": "اردبیل",
+      "name_en": "Ardabil",
+      "location": "POINT(47.8911209 38.4853276)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 4,
+    "fields": {
+      "name_fa": "اصفهان",
+      "name_en": "Esfahan",
+      "location": "POINT(51.6679826 32.6546275)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 5,
+    "fields": {
+      "name_fa": "البرز",
+      "name_en": "Alborz",
+      "location": "POINT(50.9289246 35.9960467)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 6,
+    "fields": {
+      "name_fa": "ایلام",
+      "name_en": "Ilam",
+      "location": "POINT(46.670534 33.2957618)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 7,
+    "fields": {
+      "name_fa": "بوشهر",
+      "name_en": "Bushehr",
+      "location": "POINT(50.820314 28.9233837)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 8,
+    "fields": {
+      "name_fa": "تهران",
+      "name_en": "Tehran",
+      "location": "POINT(51.423056 35.696111)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 9,
+    "fields": {
+      "name_fa": "چهارمحال و بختیاری",
+      "name_en": "Chaharmahal and Bakhtiari",
+      "location": "POINT(50.8456323 31.9614348)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 10,
+    "fields": {
+      "name_fa": "خراسان جنوبی",
+      "name_en": "South Khorasan",
+      "location": "POINT(59.1041758 32.5175643)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 11,
+    "fields": {
+      "name_fa": "خراسان رضوی",
+      "name_en": "Khorasan Razavi",
+      "location": "POINT(59.1041758 32.5175643)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 12,
+    "fields": {
+      "name_fa": "خراسان شمالی",
+      "name_en": "North Khorasan",
+      "location": "POINT(57.1013188 37.4710353)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 13,
+    "fields": {
+      "name_fa": "خوزستان",
+      "name_en": "Khuzestan",
+      "location": "POINT(49.041312 31.4360149)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 14,
+    "fields": {
+      "name_fa": "زنجان",
+      "name_en": "Zanjan",
+      "location": "POINT(48.3988186 36.5018185)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 15,
+    "fields": {
+      "name_fa": "سمنان",
+      "name_en": "Semnan",
+      "location": "POINT(54.4342138 35.2255585)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 16,
+    "fields": {
+      "name_fa": "سیستان و بلوچستان",
+      "name_en": "Sistan and Baluchistan",
+      "location": "POINT(60.5820676 27.5299906)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 17,
+    "fields": {
+      "name_fa": "فارس",
+      "name_en": "Fars",
+      "location": "POINT(53.045893 29.1043813)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 18,
+    "fields": {
+      "name_fa": "قزوین",
+      "name_en": "Qazvin",
+      "location": "POINT(49.8547266 36.0881317)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 19,
+    "fields": {
+      "name_fa": "قم",
+      "name_en": "Qom",
+      "location": "POINT(50.8759419 34.6399443)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 20,
+    "fields": {
+      "name_fa": "کردستان",
+      "name_en": "Kurdistan",
+      "location": "POINT(49.041312 31.4360149)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 21,
+    "fields": {
+      "name_fa": "کرمان",
+      "name_en": "Kerman",
+      "location": "POINT(57.0833628 30.2839379)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 22,
+    "fields": {
+      "name_fa": "کرمانشاه",
+      "name_en": "Kermanshah",
+      "location": "POINT(47.065 34.314167)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 23,
+    "fields": {
+      "name_fa": "کهگیلویه و بویراحمد",
+      "name_en": "Kohgiloyeh Boyerahmad",
+      "location": "POINT(51.60525 30.6509479)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 24,
+    "fields": {
+      "name_fa": "گلستان",
+      "name_en": "Golestan",
+      "location": "POINT(55.1375834 37.2898123)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 25,
+    "fields": {
+      "name_fa": "گیلان",
+      "name_en": "Gilan",
+      "location": "POINT(49.5924 37.2809)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 26,
+    "fields": {
+      "name_fa": "لرستان",
+      "name_en": "Lorestan",
+      "location": "POINT(49.041312 31.4360149)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 27,
+    "fields": {
+      "name_fa": "مازندران",
+      "name_en": "Mazandaran",
+      "location": "POINT(52.5318604 36.2262393)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 28,
+    "fields": {
+      "name_fa": "مرکزی",
+      "name_en": "Markazi",
+      "location": "POINT(49.8547 34.6123)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 29,
+    "fields": {
+      "name_fa": "هرمزگان",
+      "name_en": "Hormozgan",
+      "location": "POINT(57.0833628 30.2839379)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 30,
+    "fields": {
+      "name_fa": "همدان",
+      "name_en": "Hamedan",
+      "location": "POINT(55.1375834 27.138723)"
+    }
+  },
+  {
+    "model": "team4.province",
+    "pk": 31,
+    "fields": {
+      "name_fa": "یزد",
+      "name_en": "Yazd",
+      "location": null
+    }
+  }
+]

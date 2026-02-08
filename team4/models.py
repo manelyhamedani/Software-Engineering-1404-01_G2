@@ -1,3 +1,346 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator, EmailValidator
+from django.core.exceptions import ValidationError
+from .fields import PointField, Point
+import math
 
-# Create your models here.
+
+
+class Province(models.Model):
+    province_id = models.AutoField(primary_key=True)
+    name_fa = models.CharField(max_length=100, verbose_name="نام فارسی")
+    name_en = models.CharField(max_length=100, unique=True, verbose_name="نام انگلیسی")
+    location = PointField(null=True, blank=True, verbose_name="موقعیت جغرافیایی مرکز")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_province'
+        verbose_name = "استان"
+        verbose_name_plural = "استان‌ها"
+        indexes = [
+            models.Index(fields=['name_en'], name='idx_province_name_en'),
+        ]
+
+    def __str__(self):
+        return self.name_fa
+
+    def clean(self):
+        if len(self.name_en) <= 1:
+            raise ValidationError("نام انگلیسی باید بیشتر از یک کاراکتر باشد")
+    
+    def get_coordinates(self):
+        if self.location:
+            return (self.location.longitude, self.location.latitude)
+        return None
+    
+    @property
+    def latitude(self):
+        return self.location.latitude if self.location else None
+    
+    @property
+    def longitude(self):
+        return self.location.longitude if self.location else None
+
+
+class City(models.Model):
+    city_id = models.AutoField(primary_key=True)
+    province = models.ForeignKey(
+        Province,
+        on_delete=models.CASCADE,
+        related_name='cities',
+        verbose_name="استان"
+    )
+    name_fa = models.CharField(max_length=100, verbose_name="نام فارسی")
+    name_en = models.CharField(max_length=100, verbose_name="نام انگلیسی")
+    location = PointField(verbose_name="موقعیت جغرافیایی")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_city'
+        verbose_name = "شهر"
+        verbose_name_plural = "شهرها"
+        unique_together = [['province', 'name_en']]
+        indexes = [
+            models.Index(fields=['province'], name='idx_city_province'),
+        ]
+
+    def __str__(self):
+        return f"{self.name_fa} ({self.province.name_fa})"
+
+    def get_coordinates(self):
+        if self.location:
+            return (self.location.longitude, self.location.latitude)
+        return None
+    
+    @property
+    def latitude(self):
+        return self.location.latitude if self.location else None
+    
+    @property
+    def longitude(self):
+        return self.location.longitude if self.location else None
+
+
+class Category(models.Model):
+    category_id = models.AutoField(primary_key=True)
+    name_fa = models.CharField(max_length=100, verbose_name="نام فارسی")
+    name_en = models.CharField(max_length=100, unique=True, verbose_name="نام انگلیسی")
+    is_emergency = models.BooleanField(default=False, verbose_name="خدمات اضطراری")
+    marker_color = models.CharField(
+        max_length=20, 
+        default='blue',
+        choices=[
+            ('blue', 'آبی'),
+            ('red', 'قرمز'),
+            ('green', 'سبز'),
+            ('orange', 'نارنجی'),
+            ('purple', 'بنفش'),
+            ('yellow', 'زرد'),
+        ],
+        verbose_name="رنگ نشانگر"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_category'
+        verbose_name = "دسته‌بندی"
+        verbose_name_plural = "دسته‌بندی‌ها"
+        indexes = [
+            models.Index(fields=['name_en'], name='idx_category_name'),
+        ]
+
+    def __str__(self):
+        return self.name_fa
+
+
+class Amenity(models.Model):
+    amenity_id = models.AutoField(primary_key=True)
+    name_fa = models.CharField(max_length=100, verbose_name="نام فارسی")
+    name_en = models.CharField(max_length=100, unique=True, verbose_name="نام انگلیسی")
+    icon = models.CharField(max_length=50, blank=True, verbose_name="آیکون")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_amenity'
+        verbose_name = "امکانات"
+        verbose_name_plural = "امکانات"
+
+    def __str__(self):
+        return self.name_fa
+
+
+class Facility(models.Model):
+    fac_id = models.BigAutoField(primary_key=True)
+    name_fa = models.CharField(max_length=200, verbose_name="نام فارسی")
+    name_en = models.CharField(max_length=200, verbose_name="نام انگلیسی")
+    
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='facilities',
+        verbose_name="دسته‌بندی"
+    )
+    city = models.ForeignKey(
+        City,
+        on_delete=models.RESTRICT,
+        related_name='facilities',
+        verbose_name="شهر"
+    )
+    
+    address = models.TextField(verbose_name="آدرس")
+    location = PointField(verbose_name="موقعیت جغرافیایی") 
+    phone = models.CharField(max_length=20, blank=True, verbose_name="تلفن")
+    email = models.EmailField(blank=True, validators=[EmailValidator()], verbose_name="ایمیل")
+    website = models.URLField(max_length=200, blank=True, verbose_name="وبسایت")
+    description_fa = models.TextField(blank=True, verbose_name="توضیحات فارسی")
+    description_en = models.TextField(blank=True, verbose_name="توضیحات انگلیسی")
+    avg_rating = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        verbose_name="امتیاز میانگین"
+    )
+    review_count = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0)],
+        verbose_name="تعداد نظرات"
+    )
+    
+    status = models.BooleanField(default=True, verbose_name="وضعیت فعال")
+    is_24_hour = models.BooleanField(default=False, verbose_name="24 ساعته")
+    
+    amenities = models.ManyToManyField(
+        Amenity,
+        through='FacilityAmenity',
+        related_name='facilities',
+        blank=True,
+        verbose_name="امکانات"
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_facility'
+        verbose_name = "مکان"
+        verbose_name_plural = "مکان‌ها"
+        unique_together = [['name_en', 'city']]
+        indexes = [
+            models.Index(fields=['category'], name='idx_facility_category'),
+            models.Index(fields=['city'], name='idx_facility_city'),
+            models.Index(fields=['status'], name='idx_facility_status'),
+        ]
+
+    def __str__(self):
+        return f"{self.name_fa} - {self.city.name_fa}"
+
+    def get_coordinates(self):
+        if self.location:
+            return (self.location.x, self.location.y)
+        return None
+    
+    @property
+    def latitude(self):
+        return self.location.y if self.location else None
+    
+    @property
+    def longitude(self):
+        return self.location.x if self.location else None
+
+    def calculate_distance_to(self, point):
+        """محاسبه فاصله تا یک نقطه - برحسب کیلومتر
+        
+        Args:
+            point: Point object یا tuple (lng, lat)
+        
+        Returns:
+            float: فاصله به کیلومتر
+        """
+        if not self.location:
+            return None
+        
+        # اگر tuple بود، تبدیل به Point کن
+        if isinstance(point, (tuple, list)):
+            point = Point(point[0], point[1], srid=4326)
+        
+        # محاسبه فاصله با استفاده از PostGIS
+        # transform به متر و تبدیل به کیلومتر
+        distance_m = self.location.distance(point) * 111320  # تبدیل degree به متر (تقریبی)
+        return distance_m / 1000  # تبدیل به کیلومتر
+
+    def get_primary_image(self):
+        return self.images.filter(is_primary=True).first()
+
+    def get_min_price(self):
+        pricing = self.pricing_set.filter(status=True).order_by('price').first()
+        return pricing.price if pricing else None
+
+
+class FacilityAmenity(models.Model):
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.CASCADE,
+        verbose_name="مکان"
+    )
+    amenity = models.ForeignKey(
+        Amenity,
+        on_delete=models.CASCADE,
+        verbose_name="امکانات"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_facility_amenity'
+        unique_together = [['facility', 'amenity']]
+        verbose_name = "امکانات مکان"
+        verbose_name_plural = "امکانات مکان‌ها"
+        indexes = [
+            models.Index(fields=['facility'], name='idx_fac_amenity_fac'),
+            models.Index(fields=['amenity'], name='idx_fac_amenity_amenity'),
+        ]
+
+    def __str__(self):
+        return f"{self.facility.name_fa} - {self.amenity.name_fa}"
+
+
+class Pricing(models.Model):
+    PRICE_TYPE_CHOICES = [
+        ('Hourly', 'ساعتی'),
+        ('Daily', 'روزانه'),
+        ('Monthly', 'ماهانه'),
+        ('Per Night', 'هر شب'),
+        ('Per Session', 'هر جلسه'),
+    ]
+    
+    pricing_id = models.BigAutoField(primary_key=True)
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.CASCADE,
+        related_name='pricing_set',
+        verbose_name="مکان"
+    )
+    price_type = models.CharField(
+        max_length=50,
+        choices=PRICE_TYPE_CHOICES,
+        verbose_name="نوع قیمت"
+    )
+    price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name="قیمت (تومان)"
+    )
+    description_fa = models.TextField(blank=True, verbose_name="توضیحات فارسی")
+    description_en = models.TextField(blank=True, verbose_name="توضیحات انگلیسی")
+    status = models.BooleanField(default=True, verbose_name="وضعیت فعال")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_pricing'
+        verbose_name = "قیمت"
+        verbose_name_plural = "قیمت‌ها"
+        indexes = [
+            models.Index(fields=['facility'], name='idx_pricing_fac'),
+        ]
+
+    def __str__(self):
+        return f"{self.facility.name_fa} - {self.get_price_type_display()}: {self.price:,} تومان"
+
+
+class Image(models.Model):
+    image_id = models.BigAutoField(primary_key=True)
+    facility = models.ForeignKey(
+        Facility,
+        on_delete=models.CASCADE,
+        related_name='images',
+        verbose_name="مکان"
+    )
+    image_url = models.URLField(max_length=500, verbose_name="URL تصویر")
+    is_primary = models.BooleanField(default=False, verbose_name="تصویر اصلی")
+    alt_text = models.CharField(max_length=255, blank=True, verbose_name="متن جایگزین")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'facilities_image'
+        verbose_name = "تصویر"
+        verbose_name_plural = "تصاویر"
+        indexes = [
+            models.Index(fields=['facility'], name='idx_image_fac'),
+            models.Index(fields=['facility', 'is_primary'], name='idx_image_primary'),
+        ]
+
+    def __str__(self):
+        return f"{self.facility.name_fa} - {'اصلی' if self.is_primary else 'جانبی'}"
+
+    def clean(self):
+        if not self.image_url:
+            raise ValidationError("URL تصویر نمی‌تواند خالی باشد")
