@@ -1,6 +1,3 @@
-# Environment files
-.env.team11
-*.env
 
 # Database files
 *.sqlite3
