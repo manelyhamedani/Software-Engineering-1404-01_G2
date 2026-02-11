@@ -2,12 +2,15 @@ from datetime import date
 
 import jdatetime
 from django.db.utils import OperationalError
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from core.auth import api_login_required
 from .models import Trip
 
+
+TEAM_NAME = "team10"
 
 # ---- Constants
 STYLES = [
@@ -320,51 +323,11 @@ def _parse_trip_form_data(request):
         "styles_selected": styles_selected,
     }
 
+@api_login_required
+def ping(request):
+    return JsonResponse({"team": TEAM_NAME, "ok": True})
 
-def create_trip(request):
-    """ایجاد یک سفر جدید"""
-    error = None
 
-    if request.method == "POST":
-        form_data = _parse_trip_form_data(request)
-
-        # ---- Validation
-        parsed_data, error = _validate_trip_data(
-            form_data["destination"],
-            form_data["origin"],
-            form_data["days_raw"],
-            form_data["start_at_raw"],
-        )
-
-        if error is None:
-            days = parsed_data["days"]
-            start_at = parsed_data["start_at"]
-
-            try:
-                trip = Trip.objects.create(
-                    user=request.user if request.user.is_authenticated else None,
-                    destination_name=form_data["destination"],
-                    origin_name=form_data["origin"],
-                    days=days,
-                    people=form_data["people"],
-                    budget=form_data["budget"],
-                    start_at=start_at,
-                    styles=form_data["styles_selected"],
-                    status=Trip.Status.DRAFT,
-                )
-                return redirect("team10:trip_detail", trip_id=trip.id)
-            except OperationalError:
-                error = "فعلاً دیتابیس آماده نیست (migrate نشده)."
-
-    return render(
-        request,
-        "team10/create_trip.html",
-        {
-            "styles": STYLES,
-            "cities": CITIES,
-            "error": error,
-        },
-    )
 def base(request):
     return render(request, f"{TEAM_NAME}/index.html")
 
