@@ -1,106 +1,95 @@
-﻿{% extends "team10/base.html" %}
+{% extends "team10/base.html" %}
 {% block title %}جزئیات سفر{% endblock %}
 
 {% block content %}
 <section class="t10-page">
   <section class="t10-section">
     <h2>جزئیات سفر</h2>
-    <p>نمایش اطلاعات کلی و برنامه روزانه سفر (نمونه نمایشی).</p>
+    <p>نمایش اطلاعات کلی و برنامه روزانه سفر.</p>
   </section>
 
+  {% if trip %}
   <section class="t10-card t10-trip-summary">
     <h3>خلاصه سفر</h3>
     <div class="t10-grid t10-grid--3">
-      <div><strong>مبدأ:</strong> تهران</div>
-      <div><strong>مقصد:</strong> شیراز</div>
-      <div><strong>تاریخ شروع (شمسی):</strong> ۱۴۰۴-۰۲-۱۰</div>
-      <div><strong>مدت (روز):</strong> ۳</div>
-      <div><strong>تعداد نفرات:</strong> ۲</div>
-      <div><strong>بودجه (تومان):</strong> ۱۲٬۰۰۰٬۰۰۰</div>
-      <div><strong>وضعیت:</strong> <span class="t10-badge t10-badge--active">فعال</span></div>
+      <div><strong>مبدأ:</strong> {{ trip.requirements.origin_city_id|default:"-" }}</div>
+      <div><strong>مقصد:</strong> {{ trip.requirements.destination_name|default:"-" }}</div>
+      <div><strong>تاریخ شروع:</strong> {{ trip.requirements.start_at|date:"Y-m-d H:i"|default:"-" }}</div>
+      <div><strong>تاریخ پایان:</strong> {{ trip.requirements.end_at|date:"Y-m-d H:i"|default:"-" }}</div>
+      <div><strong>تعداد نفرات:</strong> {{ trip.requirements.travelers_count|default:"-" }}</div>
+      <div><strong>بودجه (تومان):</strong> {{ trip.requirements.budget|default:"-" }}</div>
+      <div><strong>وضعیت:</strong> <span class="t10-badge t10-badge--active">{{ trip.get_status_display }}</span></div>
     </div>
   </section>
 
   <section class="t10-card">
     <h3>برنامه روزانه</h3>
 
+    {% for plan in daily_plans %}
     <div class="t10-day-block">
-      <h4>روز ۱</h4>
+      <h4>روز {{ forloop.counter }}</h4>
       <div class="t10-item-row">
-        <div><strong>نام:</strong> باغ ارم</div>
-        <div><strong>نوع:</strong> جاذبه</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۰۹:۰۰</div>
-        <div><strong>توضیح کوتاه:</strong> بازدید از فضای تاریخی و طبیعت.</div>
+        <div><strong>نام:</strong> {{ plan.description|truncatechars:40|default:"-" }}</div>
+        <div><strong>نوع:</strong>
+          {% if plan.activity_type == "SIGHTSEEING" %}گردشگری
+          {% elif plan.activity_type == "FOOD" %}غذا
+          {% elif plan.activity_type == "SHOPPING" %}خرید
+          {% elif plan.activity_type == "OUTDOOR" %}فضای باز
+          {% elif plan.activity_type == "CULTURE" %}فرهنگی
+          {% elif plan.activity_type == "RELAX" %}استراحت
+          {% elif plan.activity_type == "NIGHTLIFE" %}شب‌گردی
+          {% elif plan.activity_type == "TRANSPORT" %}حمل‌ونقل
+          {% else %}سایر
+          {% endif %}
+        </div>
+        <div><strong>ساعت پیشنهادی:</strong> {{ plan.start_at|date:"H:i"|default:"-" }}</div>
+        <div><strong>توضیح کوتاه:</strong> {{ plan.description|default:"-" }}</div>
       </div>
-      <div class="t10-transfer">جابجایی: ۲۰ دقیقه با خودرو – ۶ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> رستوران سنتی</div>
-        <div><strong>نوع:</strong> غذا</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۳:۳۰</div>
-        <div><strong>توضیح کوتاه:</strong> صرف ناهار محلی.</div>
-      </div>
-      <div class="t10-transfer">جابجایی: ۱۵ دقیقه با خودرو – ۴ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> هتل مرکز شهر</div>
-        <div><strong>نوع:</strong> هتل</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۹:۳۰</div>
-        <div><strong>توضیح کوتاه:</strong> استراحت و آماده‌سازی برای روز بعد.</div>
+      <div class="t10-transfer">
+        بازه زمانی: {{ plan.start_at|date:"Y-m-d H:i"|default:"-" }} تا {{ plan.end_at|date:"Y-m-d H:i"|default:"-" }}
       </div>
     </div>
+    {% empty %}
+    <div class="t10-day-block">
+      <div class="t10-item-row">
+        <div>برنامه‌ای برای این سفر ثبت نشده است.</div>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
 
+  <section class="t10-card">
+    <h3>هتل‌ها</h3>
+    {% for hotel in hotel_schedules %}
     <div class="t10-day-block">
-      <h4>روز ۲</h4>
       <div class="t10-item-row">
-        <div><strong>نام:</strong> تخت جمشید</div>
-        <div><strong>نوع:</strong> جاذبه</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۰۸:۳۰</div>
-        <div><strong>توضیح کوتاه:</strong> بازدید مفصل از مجموعه تاریخی.</div>
+        <div><strong>شناسه هتل:</strong> {{ hotel.hotel_id }}</div>
+        <div><strong>تعداد اتاق:</strong> {{ hotel.rooms_count }}</div>
+        <div><strong>هزینه:</strong> {{ hotel.cost }}</div>
       </div>
-      <div class="t10-transfer">جابجایی: ۳۵ دقیقه با خودرو – ۲۲ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> کافه سنتی</div>
-        <div><strong>نوع:</strong> غذا</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۴:۰۰</div>
-        <div><strong>توضیح کوتاه:</strong> میان‌وعده و استراحت کوتاه.</div>
-      </div>
-      <div class="t10-transfer">جابجایی: ۲۵ دقیقه با خودرو – ۱۰ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> بازار وکیل</div>
-        <div><strong>نوع:</strong> رویداد</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۸:۰۰</div>
-        <div><strong>توضیح کوتاه:</strong> خرید و گردش عصرگاهی.</div>
+      <div class="t10-transfer">
+        بازه اقامت: {{ hotel.start_at|date:"Y-m-d H:i"|default:"-" }} تا {{ hotel.end_at|date:"Y-m-d H:i"|default:"-" }}
       </div>
     </div>
-
+    {% empty %}
     <div class="t10-day-block">
-      <h4>روز ۳</h4>
       <div class="t10-item-row">
-        <div><strong>نام:</strong> مسجد نصیرالملک</div>
-        <div><strong>نوع:</strong> جاذبه</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۰۹:۳۰</div>
-        <div><strong>توضیح کوتاه:</strong> بازدید صبحگاهی از فضای تاریخی.</div>
-      </div>
-      <div class="t10-transfer">جابجایی: ۲۰ دقیقه با خودرو – ۷ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> رستوران محلی</div>
-        <div><strong>نوع:</strong> غذا</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۲:۳۰</div>
-        <div><strong>توضیح کوتاه:</strong> ناهار پیش از پایان سفر.</div>
-      </div>
-      <div class="t10-transfer">جابجایی: ۱۰ دقیقه با خودرو – ۳ کیلومتر</div>
-      <div class="t10-item-row">
-        <div><strong>نام:</strong> هتل مرکز شهر</div>
-        <div><strong>نوع:</strong> هتل</div>
-        <div><strong>ساعت پیشنهادی:</strong> ۱۵:۰۰</div>
-        <div><strong>توضیح کوتاه:</strong> تحویل اتاق و پایان برنامه.</div>
+        <div>هتلی برای این سفر ثبت نشده است.</div>
       </div>
     </div>
+    {% endfor %}
   </section>
 
   <div class="t10-actions">
-    <a class="t10-btn t10-btn--secondary" href="/team10/trips/1/cost/">هزینه سفر</a>
-    <a class="t10-btn t10-btn--secondary" href="/team10/trips/1/styles/">سبک‌ها</a>
-    <a class="t10-btn t10-btn--primary" href="/team10/trips/1/replan/">بازتولید برنامه</a>
+    <a class="t10-btn t10-btn--secondary" href="/team10/trips/{{ trip.id }}/cost/">هزینه سفر</a>
+    <a class="t10-btn t10-btn--secondary" href="/team10/trips/{{ trip.id }}/styles/">سبک‌ها</a>
+    <a class="t10-btn t10-btn--primary" href="/team10/trips/{{ trip.id }}/replan/">بازتولید برنامه</a>
   </div>
+  {% else %}
+  <section class="t10-card">
+    <h3>جزئیات سفر</h3>
+    <p>سفر موردنظر پیدا نشد.</p>
+  </section>
+  {% endif %}
 </section>
 {% endblock %}
