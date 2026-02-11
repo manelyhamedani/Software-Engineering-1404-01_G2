@@ -9,25 +9,38 @@ services:
       - app404
     depends_on:
       - trip-plan
+      - vite-app
 
   trip-plan:
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       - PYTHONPATH=/app
     env_file:
       - .env
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - app404
     volumes:
       - ./tripPlanService:/app
+    networks:
+      - app404
     depends_on:
-      - team11_postgres
-      - team11_mongo
+      team11_postgres:
+        condition: service_healthy
+      team11_mongo:
+        condition: service_healthy
+
+  vite-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    networks:
+      - app404
 
   team11_postgres:
     image: postgres:15-alpine
+    platform: linux/amd64
     container_name: team11_postgres
     environment:
       POSTGRES_DB: ${TEAM11_POSTGRES_DB:-team11_db}
@@ -47,6 +60,7 @@ services:
 
   team11_mongo:
     image: mongo:7.0
+    platform: linux/amd64
     container_name: team11_mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${TEAM11_MONGO_USER:-team11_mongo}
@@ -59,17 +73,18 @@ services:
     networks:
       - app404
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test:
+        - CMD-SHELL
+        - echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
   team11_postgres_data:
-    driver: local
   team11_mongo_data:
-    driver: local
 
 networks:
   app404:
     external: true
+    name: app404_net
