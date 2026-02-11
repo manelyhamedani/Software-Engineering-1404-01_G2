@@ -4,7 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from core.auth import api_login_required
 
-from .application.services.trip_planning_service_impl import TripPlanningServiceImpl
+from .services import trip_planning_service
 from .models import Trip
 
 
@@ -27,9 +27,8 @@ def create_trip_api(request):
         # User is guaranteed to be authenticated by @api_login_required
         user = request.user
 
-        # Create trip using service
-        service = TripPlanningServiceImpl()
-        trip = service.create_initial_trip(data, user)
+        # Create trip using shared service instance
+        trip = trip_planning_service.create_initial_trip(data, user)
 
         # Return success response
         return JsonResponse({
@@ -122,8 +121,7 @@ def regenerate_trip_api(request, trip_id):
         data = json.loads(request.body)
         styles = data.get('styles', [])
 
-        service = TripPlanningServiceImpl()
-        trip = service.regenerate_by_styles(trip_id, styles)
+        trip = trip_planning_service.regenerate_by_styles(trip_id, styles)
 
         return JsonResponse({
             'success': True,
@@ -158,8 +156,7 @@ def analyze_budget_api(request, trip_id):
         data = json.loads(request.body)
         budget_limit = float(data.get('budget_limit', 0))
 
-        service = TripPlanningServiceImpl()
-        result = service.analyze_costs_and_budget(trip_id, budget_limit)
+        result = trip_planning_service.analyze_costs_and_budget(trip_id, budget_limit)
 
         return JsonResponse({
             'total_cost': result.total_cost,
