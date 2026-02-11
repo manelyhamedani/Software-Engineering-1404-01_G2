@@ -5,7 +5,7 @@ from .models import Trip, TripRequirements, PreferenceConstraint, DailyPlan, Hot
 @admin.register(TripRequirements)
 class TripRequirementsAdmin(admin.ModelAdmin):
     """Admin interface for Trip Requirements."""
-    list_display = ['id', 'user_id', 'destination_name', 'start_at', 'end_at', 'budget', 'travelers_count', 'created_at']
+    list_display = ['id', 'user_id', 'destination_name', 'start_at', 'end_at', 'budget_level', 'travelers_count', 'created_at']
     list_filter = ['created_at', 'travelers_count']
     search_fields = ['destination_name', 'user_id']
     date_hierarchy = 'created_at'

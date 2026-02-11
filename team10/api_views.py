@@ -18,12 +18,19 @@ def create_trip_api(request):
         data = json.loads(request.body)
         print(data)
         # Validate required fields
-        required_fields = ['destination', 'start_date', 'end_date']
+        required_fields = ['destination', 'start_date', 'end_date', 'budget_level']
         for field in required_fields:
             if not data.get(field):
                 return JsonResponse({
                     'error': f'Missing required field: {field}'
                 }, status=400)
+
+        # Validate budget_level enum
+        valid_budget_levels = ['ECONOMY', 'MODERATE', 'LUXURY']
+        if data['budget_level'] not in valid_budget_levels:
+            return JsonResponse({
+                'error': f'Invalid budget_level. Must be one of: {", ".join(valid_budget_levels)}'
+            }, status=400)
 
         # User is guaranteed to be authenticated by @api_login_required
         user = request.user
@@ -72,7 +79,7 @@ def get_trip_api(request, trip_id):
             'destination': trip.requirements.destination_name,
             'start_date': trip.requirements.start_at.isoformat(),
             'end_date': trip.requirements.end_at.isoformat(),
-            'budget': float(trip.requirements.budget) if trip.requirements.budget else None,
+            'budget_level': trip.requirements.budget_level,
             'travelers_count': trip.requirements.travelers_count,
             'total_cost': float(trip.calculate_total_cost()),
             'daily_plans': [

@@ -3,15 +3,24 @@ from typing import List
 
 from ...models import Trip as TripModel, TripRequirements as TripRequirementsModel, PreferenceConstraint as PreferenceConstraintModel
 from ...domain.entities.trip import Trip
-from ...domain.entities.trip_requirements import TripRequirements
 from ...domain.models.change_trigger import ChangeTrigger
 from ...domain.models.cost_analysis_result import CostAnalysisResult
-from ...domain.enums.trip_status import TripStatus
+from ...domain.services.season_calculator import calculate_season_iran
+from ...infrastructure.ports.facilities_service_port import FacilitiesServicePort
+from ...infrastructure.ports.recommendation_service_port import RecommendationServicePort
 from .trip_planning_service import TripPlanningService
 
 
 class TripPlanningServiceImpl(TripPlanningService):
     """Concrete implementation of TripPlanningService using Django ORM."""
+
+    def __init__(
+        self,
+        facilities_service: FacilitiesServicePort,
+        recommendation_service: RecommendationServicePort
+    ):
+        self._facilities_service = facilities_service
+        self._recommendation_service = recommendation_service
 
     def create_initial_trip(self, requirements_data: dict, user_id: str) -> TripModel:
         """Create an initial trip based on user requirements.
@@ -20,18 +29,37 @@ class TripPlanningServiceImpl(TripPlanningService):
             requirements_data: Dictionary containing trip requirements
             user_id: Hash string ID of the user from central auth system
         """
-
         # Parse dates
         start_date = datetime.fromisoformat(requirements_data['start_date'])
         end_date = datetime.fromisoformat(requirements_data['end_date'])
+
+        # Search region via facilities service
+        destination_query = requirements_data['destination']
+        region = self._facilities_service.search_region(destination_query)
+        if region is None:
+            raise ValueError(f"Region not found for destination: {destination_query}")
+
+        # Calculate season based on start date (Iran calendar)
+        season = calculate_season_iran(start_date)
+
+        # Get recommended places from recommender service
+        recommended_places = self._recommendation_service.get_recommendations(
+            user_id=user_id,
+            region_id=region.id,
+            destination=region.name,
+            season=season
+        )
+
+        print(recommended_places)
 
         # Create TripRequirements
         requirements = TripRequirementsModel.objects.create(
             user_id=user_id,
             start_at=start_date,
             end_at=end_date,
-            destination_name=requirements_data['destination'],
-            budget=requirements_data.get('budget'),
+            destination_name=region.name,
+            region_id=region.id,
+            budget_level=requirements_data.get('budget_level', 'MODERATE'),
             travelers_count=requirements_data.get('travelers_count', 1)
         )
 
@@ -51,9 +79,13 @@ class TripPlanningServiceImpl(TripPlanningService):
             status='DRAFT'
         )
 
-        # TODO: Execute planning pipeline to generate daily plans and hotel schedules
-        # For now, create a simple placeholder plan
+        # TODO: Use recommended_places to build the actual daily plan
+        # For now, store them and create a placeholder plan
         self._create_placeholder_plan(trip, start_date, end_date)
+
+        print(f"[TripPlanning] Region: {region.name} (id={region.id})")
+        print(f"[TripPlanning] Season: {season.value}")
+        print(f"[TripPlanning] Recommended places: {[(p.place_id, p.score) for p in recommended_places]}")
 
         return trip
 
@@ -97,12 +129,7 @@ class TripPlanningServiceImpl(TripPlanningService):
         return trip
 
     def view_trip(self, trip_id: int, user_id: str) -> TripModel:
-        """View trip details.
-
-        Args:
-            trip_id: ID of the trip
-            user_id: Hash string ID of the user
-        """
+        """View trip details."""
         trip = TripModel.objects.get(id=trip_id, user_id=user_id)
         return trip
 
