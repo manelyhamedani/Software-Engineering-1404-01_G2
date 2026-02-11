@@ -1,39 +1,46 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Trip Plan | Team 10{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'team10/styles/style.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}برنامه‌ریز سفر | تیم ۱۰{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'team10/styles/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-  <div class="bg-pattern"></div>
+    <div class="bg-pattern"></div>
 
-  <header class="topbar">
-    <div class="container topbar__row">
-      <div class="nav">
-        <a href="/" class="nav__link">خانه سامانه</a>
-        <a href="/team10/" class="nav__link">خانه تیم ۱۰</a>
-        <a href="/team10/trips/" class="nav__link">سفرهای من</a>
-      </div>
-
-      <div class="brand__text">
-        <div class="brand__title">برنامه‌ریز سفر</div>
-        <div class="brand__sub">تیم ۱۰</div>
+    <header class="main-header">
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fa-solid fa-map"></i>
+                <div class="logo-text">
+                    <h1>برنامه‌ریز سفر</h1>
+                    <span>تیم ۱۰</span>
+                </div>
             </div>
-            <div class="brand__logo">سفر</div>
 
-      </div>
-    </div>
-  </header>
+            <nav class="nav-links">
+                <a href="/" class="nav-link">خانه سامانه</a>
+                <a href="/team10/" class="nav-link">خانه تیم</a>
+                <a href="/team10/trips/" class="nav-link">سفرهای من</a>
+            </nav>
+        </div>
+    </header>
 
-  <main class="container">
-    {% block content %}{% endblock %}
-  </main>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
 
-  <footer class="footer">
-    <div class="container muted small">Trip Plan · Team 10</div>
-  </footer>
+    <footer class="main-footer">
+        <div class="container">
+            © سامانه برنامه‌ریز سفر — تیم ۱۰
+        </div>
+    </footer>
 </body>
 </html>

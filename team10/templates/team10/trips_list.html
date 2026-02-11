@@ -2,53 +2,75 @@
 {% block title %}سفرهای من{% endblock %}
 
 {% block content %}
-  <section class="card card--wide">
-    <div class="card__head">
-      <h2>سفرهای من</h2>
-      <div class="badge">List</div>
+    <div class="page-header">
+        <h2>سفرهای من</h2>
     </div>
 
     {% if trips %}
-      <div class="table">
-        <div class="table__head">
-          <div>مقصد</div>
-          <div>تاریخ / مدت</div>
-          <div>وضعیت</div>
-          <div>جزئیات</div>
+        <div class="trips-table">
+            {% for trip in trips %}
+                <div class="trip-row">
+                    <div class="trip-header">
+                        <h3>{{ trip.destination_name }}</h3>
+                        {% if trip.origin_name %}
+                            <p class="trip-origin">مبدأ: {{ trip.origin_name }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="trip-details">
+                        <div class="detail-item">
+                            <span class="label">شروع:</span>
+                            <span class="value">{% if trip.start_at %}{{ trip.start_at }}{% else %}—{% endif %}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="label">مدت:</span>
+                            <span class="value">{{ trip.days }} روز</span>
+                        </div>
+                        {% if trip.total_cost %}
+                            <div class="detail-item">
+                                <span class="label">هزینه:</span>
+                                <span class="value">{{ trip.total_cost }}</span>
+                            </div>
+                        {% endif %}
+                        {% if trip.budget %}
+                            <div class="detail-item">
+                                <span class="label">بودجه:</span>
+                                <span class="value">{{ trip.budget }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="trip-status">
+                        <span class="badge badge-{{ trip.status }}">
+                            {{ trip.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="trip-actions">
+                        <a class="btn btn-small" href="/team10/trips/{{ trip.id }}/">
+                            <i class="fa-solid fa-eye"></i>
+                            جزئیات
+                        </a>
+                        <a class="btn btn-small" href="/team10/trips/{{ trip.id }}/cost/">
+                            <i class="fa-solid fa-calculator"></i>
+                            هزینه
+                        </a>
+                        <a class="btn btn-small" href="/team10/trips/{{ trip.id }}/styles/">
+                            <i class="fa-solid fa-palette"></i>
+                            سبک‌ها
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-
-        {% for t in trips %}
-          <div class="table__row">
-            <div class="cell">
-              <div class="title">{{ t.destination_name }}</div>
-              {% if t.origin_name %}<div class="muted small">مبدأ: {{ t.origin_name }}</div>{% endif %}
-            </div>
-            <div class="cell">
-              <div class="title">
-                {% if t.start_at %}{{ t.start_at }}{% else %}—{% endif %}
-                · {{ t.days }} روز
-              </div>
-              <div class="muted small">
-                {% if t.total_cost %}هزینه: {{ t.total_cost }}{% else %}هزینه: نامشخص{% endif %}
-                {% if t.budget %} · بودجه: {{ t.budget }}{% endif %}
-              </div>
-            </div>
-            <div class="cell">
-              <span class="pill pill--{{ t.status }}">{{ t.get_status_display }}</span>
-            </div>
-            <div class="cell actions actions--tight">
-              <a class="btn btn--sm" href="/team10/trips/{{ t.id }}/">جزئیات</a>
-              <a class="btn btn--sm" href="/team10/trips/{{ t.id }}/cost/">هزینه</a>
-              <a class="btn btn--sm" href="/team10/trips/{{ t.id }}/styles/">سبک‌ها</a>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
     {% else %}
-      <div class="empty">
-        <div class="empty__title">چیزی برای نمایش نیست</div>
-        <div class="muted">اگر DB هنوز migrate نشده، اول migrate کنید یا از Home سفر بسازید.</div>
-      </div>
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-inbox"></i>
+            </div>
+            <div class="empty-title">چیزی برای نمایش نیست</div>
+            <p>اگر DB هنوز migrate نشده، اول migrate کنید یا از خانه سفر بسازید.</p>
+            <a class="btn btn-primary" href="/team10/create/">
+                <i class="fa-solid fa-plus"></i>
+                سفر اول را بسازید
+            </a>
+        </div>
     {% endif %}
-  </section>
 {% endblock %}

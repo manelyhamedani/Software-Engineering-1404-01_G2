@@ -2,33 +2,67 @@
 {% block title %}جزئیات سفر{% endblock %}
 
 {% block content %}
-  <section class="card card--wide">
-    <div class="card__head">
-      <h2>جزئیات سفر</h2>
-      <div class="badge">Details</div>
-    </div>
-
     {% if trip %}
-      <div class="muted">این صفحه فعلاً اسکلت است؛ بعداً برنامه روزبه‌روز و آیتم‌ها را اینجا می‌ریزیم.</div>
-      <div style="margin-top:12px">
-        <div><b>مقصد:</b> {{ trip.destination_name }}</div>
-        <div><b>مبدأ:</b> {{ trip.origin_name|default:"—" }}</div>
-        <div><b>مدت:</b> {{ trip.days }} روز</div>
-        <div><b>تاریخ شروع:</b> {{ trip.start_at|default:"—" }}</div>
-        <div><b>بودجه:</b> {{ trip.budget|default:"—" }}</div>
-        <div><b>وضعیت:</b> {{ trip.get_status_display }}</div>
-        <div><b>سبک‌ها:</b> {{ trip.styles }}</div>
-      </div>
+        <div class="page-header">
+            <h2>{{ trip.destination_name }}</h2>
+            <p>جزئیات سفر</p>
+        </div>
 
-      <div class="actions" style="margin-top:14px">
-        <a class="btn" href="/team10/trips/{{ trip.id }}/cost/">تحلیل هزینه</a>
-        <a class="btn" href="/team10/trips/{{ trip.id }}/styles/">سبک‌ها</a>
-        <a class="btn btn--ghost" href="/team10/trips/{{ trip.id }}/replan/">بازتولید</a>
-      </div>
+        <div class="trip-details-card">
+            <div class="trip-info-grid">
+                <div class="info-item">
+                    <span class="label">مزدا</span>
+                    <span class="value">{{ trip.destination_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">مبدأ</span>
+                    <span class="value">{{ trip.origin_name|default:"—" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">مدت</span>
+                    <span class="value">{{ trip.days }} روز</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">تاریخ شروع</span>
+                    <span class="value">{{ trip.start_at|default:"—" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">قالب</span>
+                    <span class="value">{{ trip.get_status_display }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">تعداد نفر</span>
+                    <span class="value">{{ trip.people }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">بودجه</span>
+                    <span class="value">{{ trip.budget|default:"—" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">هزینه کل</span>
+                    <span class="value">{{ trip.total_cost|default:"—" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a class="btn btn-primary" href="/team10/trips/{{ trip.id }}/cost/">
+                <i class="fa-solid fa-calculator"></i>
+                تحلیل هزینه
+            </a>
+            <a class="btn btn-primary" href="/team10/trips/{{ trip.id }}/styles/">
+                <i class="fa-solid fa-palette"></i>
+                سبک‌ها
+            </a>
+            <a class="btn btn-secondary" href="/team10/trips/{{ trip.id }}/replan/">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                بازتولید
+            </a>
+        </div>
     {% else %}
-      <div class="alert alert--error">
-        دیتابیس آماده نیست یا سفر پیدا نشد. (trip_id={{ trip_id }})
-      </div>
+        <div class="alert alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            دیتابیس آماده نیست یا سفر پیدا نشد. (trip_id={{ trip_id }})
+        </div>
     {% endif %}
-  </section>
 {% endblock %}

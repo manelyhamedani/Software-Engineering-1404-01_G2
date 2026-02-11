@@ -1,8 +1,26 @@
 {% extends "team10/base.html" %}
 {% block title %}تحلیل هزینه{% endblock %}
+
 {% block content %}
-<section class="card card--wide">
-  <div class="card__head"><h2>تحلیل هزینه</h2><div class="badge">US-01</div></div>
-  <div class="muted">فعلاً اسکلت صفحه است. بعداً نمودار/جدول هزینه اینجا می‌آید. (trip_id={{ trip_id }})</div>
-</section>
+    <div class="page-header">
+        <h2>تحلیل هزینه</h2>
+        <p>بررسی طفسیل هزینههای سفر</p>
+    </div>
+
+    <div class="placeholder-section">
+        <div class="placeholder-icon">
+            <i class="fa-solid fa-chart-pie"></i>
+        </div>
+        <div class="placeholder-text">
+            <h3>و تعداد نطت</h3>
+            <p>این روال عفلا و رای بعد روزها تعویض خواهد شد.</p>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="/team10/trips/{{ trip_id }}/" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i>
+            بازگشت
+        </a>
+    </div>
 {% endblock %}
