@@ -321,6 +321,28 @@
     }
 }
 
+.t10-filter-form .t10-actions {
+    margin-top: 12px;
+    justify-content: flex-start;
+}
+
+.t10-input-with-icon {
+    position: relative;
+}
+
+.t10-input-with-icon .t10-jalali-input {
+    padding-left: 38px;
+}
+
+.t10-calendar-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #607D8B;
+    cursor: pointer;
+}
+
 .t10-page {
     display: grid;
     gap: 16px;
