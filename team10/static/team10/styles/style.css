@@ -234,6 +234,19 @@ body {
     background: var(--white);
 }
 
+.t10-home-actions-grid .service-card {
+    cursor: pointer;
+}
+
+.t10-home-actions-grid .service-card:focus-visible {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(46, 125, 50, 0.15);
+    border-color: var(--tile-cyan);
+    background: var(--white);
+    outline: 2px solid var(--tile-cyan);
+    outline-offset: 2px;
+}
+
 .service-card::before {
     content: '';
     position: absolute;
@@ -245,6 +258,11 @@ body {
 }
 
 .service-card:hover::before {
+    width: 8px;
+    opacity: 1;
+}
+
+.t10-home-actions-grid .service-card:focus-visible::before {
     width: 8px;
     opacity: 1;
 }
@@ -272,6 +290,12 @@ body {
 }
 
 .service-card:hover .card-icon {
+    background: linear-gradient(135deg, var(--forest-green), var(--persian-blue));
+    color: var(--white);
+    transform: rotate(5deg) scale(1.1);
+}
+
+.t10-home-actions-grid .service-card:focus-visible .card-icon {
     background: linear-gradient(135deg, var(--forest-green), var(--persian-blue));
     color: var(--white);
     transform: rotate(5deg) scale(1.1);
