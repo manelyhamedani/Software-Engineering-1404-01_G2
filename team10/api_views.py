@@ -4,7 +4,6 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from core.auth import api_login_required
 
-from .application.services.trip_planning_service_impl import TripPlanningServiceImpl
 from .services import trip_planning_service
 
 from .models import Trip
