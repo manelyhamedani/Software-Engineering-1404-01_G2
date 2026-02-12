@@ -85,6 +85,11 @@ class TripPlanningServiceImpl(TripPlanningService):
         # Parse dates
         start_date = datetime.fromisoformat(requirements_data['start_date'])
         end_date = datetime.fromisoformat(requirements_data['end_date'])
+        today = datetime.now().date()
+        if start_date.date() < today:
+            raise ValueError(f"Start date cannot be before today: {start_date}")
+        if end_date.date() < today:
+            raise ValueError(f"End date cannot be before today: {end_date}")
 
         # Search region via facilities service (done outside transaction - read-only external call)
         destination_query = requirements_data['destination']
