@@ -256,3 +256,117 @@
   font-size: 14px;
   box-shadow: 0 6px 14px rgba(0,0,0,.10);
 }
+
+.t10-cost-chart-card {
+  margin-top: 12px;
+}
+
+.t10-cost-chart {
+  position: relative;
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.t10-cost-chart__viz {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  flex: 0 0 auto;
+}
+
+.t10-pie-chart {
+  width: 220px;
+  height: 220px;
+  display: block;
+}
+
+.t10-pie-circle {
+  fill: none;
+  stroke-width: 10;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  cursor: pointer;
+  transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.t10-pie-bg {
+  fill: none;
+  stroke: rgba(46, 125, 50, 0.12);
+  stroke-width: 10;
+}
+
+.t10-pie-circle:hover {
+  stroke-width: 12;
+  opacity: 0.9;
+}
+
+.t10-pie-tooltip-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  pointer-events: none;
+  background: #ffffff;
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  font-size: 0.78rem;
+  color: #2f4f38;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.t10-pie-tooltip-box.is-show {
+  display: block;
+}
+
+.t10-pie-color-1 { stroke: #7fb77e; }
+.t10-pie-color-2 { stroke: #f2c078; }
+.t10-pie-color-3 { stroke: #91c7b1; }
+.t10-pie-color-4 { stroke: #d9a441; }
+.t10-pie-color-5 { stroke: #b7d0a5; }
+
+.t10-cost-chart__legend {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+
+.t10-pie-legend {
+  display: grid;
+  gap: 8px;
+  color: #2f4f38;
+}
+
+.t10-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.t10-pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.t10-legend-1 .t10-pie-dot { background: #7fb77e; }
+.t10-legend-2 .t10-pie-dot { background: #f2c078; }
+.t10-legend-3 .t10-pie-dot { background: #91c7b1; }
+.t10-legend-4 .t10-pie-dot { background: #d9a441; }
+.t10-legend-5 .t10-pie-dot { background: #b7d0a5; }
+
+@media (max-width: 900px) {
+  .t10-cost-chart {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .t10-cost-chart__viz {
+    margin: 0 auto;
+  }
+}

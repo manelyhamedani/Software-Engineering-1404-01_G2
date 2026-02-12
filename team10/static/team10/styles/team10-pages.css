@@ -442,6 +442,34 @@
     gap: 8px;
 }
 
+.t10-cost-top-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.t10-cost-top-grid .t10-cost-chart-card {
+    margin-top: 0;
+}
+
+.t10-cost-top-grid .t10-cost-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+
+.t10-cost-top-grid .t10-cost-chart__viz {
+    margin: 0 auto;
+}
+
+@media (max-width: 1000px) {
+    .t10-cost-top-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .t10-details {
     background: var(--glass);
     border: 1px solid rgba(255,255,255,0.65);
