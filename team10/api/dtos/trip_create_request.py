@@ -18,7 +18,6 @@ class TripCreateRequest:
     user_id: int
     start_at: datetime
     end_at: datetime
-    origin_city_id: int
     destination_city_id: int
     constraints: Optional[List[PreferenceConstraintDto]] = None
     budget_limit: Optional[float] = None

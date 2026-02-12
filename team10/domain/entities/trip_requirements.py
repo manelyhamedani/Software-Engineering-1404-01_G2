@@ -19,7 +19,6 @@ class TripRequirements:
     user_id: int
     start_at: datetime
     end_at: datetime
-    origin_city_id: int
     destination_city_id: int
     id: Optional[int] = None
     constraints: Set[PreferenceConstraint] = field(default_factory=set)

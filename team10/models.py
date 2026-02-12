@@ -14,7 +14,6 @@ class TripRequirements(models.Model):
     user_id = models.CharField(max_length=255, db_index=True)  # Hash string from central auth
     start_at = models.DateTimeField()
     end_at = models.DateTimeField()
-    origin_city_id = models.IntegerField(null=True, blank=True)
     destination_city_id = models.IntegerField(null=True, blank=True)
     destination_name = models.CharField(max_length=200)
     region_id = models.CharField(max_length=255, null=True, blank=True)

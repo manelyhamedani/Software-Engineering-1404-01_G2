@@ -14,7 +14,6 @@ class TripCreateSerializer(serializers.Serializer):
     user_id = serializers.IntegerField()
     start_at = serializers.DateTimeField()
     end_at = serializers.DateTimeField()
-    origin_city_id = serializers.IntegerField()
     destination_city_id = serializers.IntegerField()
     constraints = PreferenceConstraintSerializer(many=True, required=False)
     budget_limit = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)

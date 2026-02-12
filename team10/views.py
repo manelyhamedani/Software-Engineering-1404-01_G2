@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 import jdatetime
 from django.db.utils import OperationalError
@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from core.auth import api_login_required
-from .models import Trip
+from .models import Trip, TripRequirements, PreferenceConstraint
 
 
 TEAM_NAME = "team10"
@@ -65,32 +65,6 @@ def _safe_trips_queryset(request):
     return qs
 
 
-def _mock_trips() -> list[dict]:
-    """داده‌های نمونه برای سفرها"""
-    return [
-        {
-            "id": 1,
-            "destination_name": "شیراز",
-            "origin_name": "تهران",
-            "days": 4,
-            "start_at_jalali": "1404-11-20",
-            "budget_level": "ECONOMY",
-            "total_cost": 13200000,
-            "status": "draft",
-            "status_fa": "پیش‌نویس",
-        },
-        {
-            "id": 2,
-            "destination_name": "اصفهان",
-            "origin_name": "تهران",
-            "days": 3,
-            "start_at_jalali": "1404-12-02",
-            "budget_level": "MODERATE",
-            "total_cost": None,
-            "status": "active",
-            "status_fa": "فعال",
-        },
-    ]
 
 
 def home(request):
@@ -142,16 +116,34 @@ def home(request):
                 people = 1
 
             try:
-                trip = Trip.objects.create(
-                    user_id=request.user.id if request.user.is_authenticated else 0,
+                user_id = str(request.user.id) if request.user.is_authenticated else "0"
+                start_datetime = datetime.combine(start_at, datetime.min.time())
+                end_datetime = start_datetime + timedelta(days=days)
+                
+                # Create TripRequirements first
+                requirements = TripRequirements.objects.create(
+                    user_id=user_id,
+                    start_at=start_datetime,
+                    end_at=end_datetime,
                     destination_name=destination,
-                    origin_name=origin,
-                    days=days,
-                    people=people,
                     budget_level=budget_level,
-                    start_at=start_at,
-                    styles=styles_selected,
-                    status=Trip.Status.DRAFT,
+                    travelers_count=people
+                )
+                
+                # Create PreferenceConstraints for styles
+                for style in styles_selected:
+                    PreferenceConstraint.objects.create(
+                        requirements=requirements,
+                        tag=style,
+                        description=style
+                    )
+                
+                # Create Trip linked to requirements
+                trip = Trip.objects.create(
+                    user_id=user_id,
+                    requirements=requirements,
+                    destination_name=destination,
+                    status='DRAFT',
                 )
                 return redirect("team10:trip_detail", trip_id=trip.id)
             except OperationalError:
@@ -165,27 +157,27 @@ def home(request):
 
         trips = []
         for t in trips_qs:
+            req = t.requirements
+            days = (req.end_at - req.start_at).days if req.end_at and req.start_at else 0
+            styles = list(req.constraints.values_list('tag', flat=True))
             trips.append(
                 {
                     "id": t.id,
-                    "destination_name": t.destination_name,
-                    "origin_name": t.origin_name,
-                    "days": t.days,
-                    "budget_level": t.budget_level,
-                    "total_cost": t.total_cost,
+                    "destination_name": t.destination_name or req.destination_name,
+                    "origin_name": "",  # Not stored in model
+                    "days": days,
+                    "budget_level": req.budget_level,
+                    "total_cost": t.calculate_total_cost(),
                     "status": t.status,
                     "status_fa": t.get_status_display(),
-                    "start_at_jalali": to_jalali_str(t.start_at),
+                    "start_at_jalali": to_jalali_str(req.start_at.date() if req.start_at else None),
                     "url_detail": reverse("team10:trip_detail", args=[t.id]),
+                    "styles": styles,
                 }
             )
     except OperationalError:
-        mock = _mock_trips()
-        trips_count = len(mock)
+        trips_count = 0
         trips = []
-        for t in mock:
-            t["url_detail"] = reverse("team10:trip_detail", args=[t["id"]])
-            trips.append(t)
 
     # ---- Preset tours
     tours = [
