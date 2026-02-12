@@ -15,7 +15,7 @@
 
 <section class="t10-filter-box">
     <form method="get" class="t10-filter-form">
-        <div class="t10-filter-grid">
+        <div class="t10-filter-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
             <div class="t10-field">
                 <label for="status">وضعیت</label>
                 <select id="status" name="status">
@@ -29,7 +29,7 @@
             </div>
 
             <div class="t10-field">
-                <label for="date-from">بازه تاریخ شروع (از)</label>
+                <label for="date-from">از تاریخ</label>
                 <div class="t10-input-with-icon">
                     <input id="date-from" type="text" name="date_from" class="t10-jalali-input persian-date"
                            value="{{ date_from }}" placeholder="۱۴۰۴-۰۱-۰۱" autocomplete="off">
@@ -38,24 +38,12 @@
             </div>
 
             <div class="t10-field">
-                <label for="date-to">بازه تاریخ شروع (تا)</label>
+                <label for="date-to">تا تاریخ</label>
                 <div class="t10-input-with-icon">
                     <input id="date-to" type="text" name="date_to" class="t10-jalali-input persian-date"
                            value="{{ date_to }}" placeholder="۱۴۰۴-۱۲-۲۹" autocomplete="off">
                     <i class="fas fa-calendar-alt t10-calendar-icon"></i>
                 </div>
-            </div>
-
-            <div class="t10-field">
-                <label for="destination">مقصد</label>
-                <input id="destination" type="text" name="destination" value="{{ destination }}" placeholder="مثال: شیراز">
-            </div>
-        </div>
-
-        <div class="t10-filter-grid t10-filter-grid--secondary">
-            <div class="t10-field t10-field--wide">
-                <label for="q">جستجو در مقصد یا کد سفر</label>
-                <input id="q" type="text" name="q" value="{{ q }}" placeholder="مثال: شیراز یا ۱۰۲">
             </div>
 
             <div class="t10-field">
@@ -68,8 +56,15 @@
             </div>
         </div>
 
-        <div class="t10-actions">
-            <button type="submit" class="t10-btn t10-btn--secondary">جستجو</button>
+        <div class="t10-filter-grid" style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; margin-top: 1rem; align-items: end;">
+            <div class="t10-field">
+                <label for="q">جستجو در مقصد یا کد سفر</label>
+                <input id="q" type="text" name="q" value="{{ q }}" placeholder="مثال: شیراز یا ۱۰۲">
+            </div>
+
+            <div class="t10-actions" style="margin: 0;">
+                <button type="submit" class="t10-btn t10-btn--secondary">جستجو</button>
+            </div>
         </div>
     </form>
 </section>

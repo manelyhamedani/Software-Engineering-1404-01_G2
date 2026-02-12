@@ -34,7 +34,6 @@ def create_trip_api(request):
                 'error': f'Invalid budget_level. Must be one of: {", ".join(valid_budget_levels)}'
             }, status=400)
 
-        # User is guaranteed to be authenticated by @api_login_required
         user = request.user
 
         # Extract user_id (hash string) from user object

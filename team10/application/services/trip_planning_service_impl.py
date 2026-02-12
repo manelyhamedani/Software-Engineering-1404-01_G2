@@ -703,13 +703,7 @@ class TripPlanningServiceImpl(TripPlanningService):
         # Apply status filter
         if status:
             qs = qs.filter(status=status)
-        
-        # Apply destination filter
-        if destination:
-            qs = qs.filter(
-                Q(destination_name__icontains=destination) |
-                Q(requirements__destination_name__icontains=destination)
-            )
+
         
         # Apply date range filters
         if date_from:
