@@ -231,11 +231,15 @@ def trip_detail(request, trip_id: int):
         trip = qs.filter(id=trip_id).first()
         if not trip:
             raise Http404()
+        req = trip.requirements
+        days = (req.end_at - req.start_at).days if req.end_at and req.start_at else 0
         return render(
             request,
             "team10/trip_detail.html",
             {
                 "trip": trip,
+                "days": days,
+                "total_cost": trip.calculate_total_cost(),
                 "daily_plans": trip.daily_plans.all(),
                 "hotel_schedules": trip.hotel_schedules.all(),
             },
@@ -244,7 +248,7 @@ def trip_detail(request, trip_id: int):
         return render(
             request,
             "team10/trip_detail.html",
-            {"trip": None, "trip_id": trip_id, "daily_plans": [], "hotel_schedules": []},
+            {"trip": None, "trip_id": trip_id, "days": 0, "total_cost": 0, "daily_plans": [], "hotel_schedules": []},
         )
 
 

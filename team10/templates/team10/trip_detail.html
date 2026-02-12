@@ -8,39 +8,36 @@
     <p>نمایش اطلاعات کلی و برنامه روزانه سفر.</p>
   </section>
 
+  {% if trip %}
         <div class="trip-details-card">
             <div class="trip-info-grid">
                 <div class="info-item">
-                    <span class="label">مزدا</span>
-                    <span class="value">{{ trip.destination_name }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="label">مبدأ</span>
-                    <span class="value">{{ trip.origin_name|default:"—" }}</span>
+                    <span class="label">مقصد</span>
+                    <span class="value">{{ trip.destination_name|default:trip.requirements.destination_name }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">مدت</span>
-                    <span class="value">{{ trip.days }} روز</span>
+                    <span class="value">{{ days }} روز</span>
                 </div>
                 <div class="info-item">
                     <span class="label">تاریخ شروع</span>
-                    <span class="value">{{ trip.start_at|default:"—" }}</span>
+                    <span class="value">{{ trip.requirements.start_at|date:"Y-m-d"|default:"—" }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="label">قالب</span>
+                    <span class="label">وضعیت</span>
                     <span class="value">{{ trip.get_status_display }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">تعداد نفر</span>
-                    <span class="value">{{ trip.people }}</span>
+                    <span class="value">{{ trip.requirements.travelers_count }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">سطح بودجه</span>
-                    <span clascompelates="value">{{ trip.requirements.get_budget_level_display|default:"—" }}</span>
+                    <span class="value">{{ trip.requirements.get_budget_level_display|default:"—" }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">هزینه کل</span>
-                    <span class="value">{{ trip.total_cost|default:"—" }}</span>
+                    <span class="value">{{ total_cost|default:"—" }}</span>
                 </div>
             </div>
         </div>

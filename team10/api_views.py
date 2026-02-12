@@ -77,6 +77,10 @@ def get_trip_api(request, trip_id):
         # dest_info = wiki.get_destination_basic_info(trip.requirements.destination_name)
         dest_info = "ببببو"
 
+        # TODO: Implement wiki service integration
+        # wiki = get_wiki_client(use_mock=True)
+        # dest_info = wiki.get_destination_basic_info(trip.requirements.destination_name)
+
         # Prepare response data
         trip_data = {
             'id': trip.id,
@@ -112,12 +116,8 @@ def get_trip_api(request, trip_id):
                 {'tag': c.tag, 'description': c.description}
                 for c in trip.requirements.constraints.all()
             ],
-            'destination_info': {
-                'name': dest_info.name,
-                'description': dest_info.description,
-                'country': dest_info.country,
-                'region': dest_info.region,
-            },
+            # TODO: Populate from wiki service when implemented
+            'destination_info': '',  # Will be ~250 words description from wiki service
         }
 
         return JsonResponse(trip_data)
