@@ -841,6 +841,15 @@ body {
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
 }
 
+.main-header .nav-pills .nav-pill--icon {
+  justify-content: center;
+}
+
+.main-header .nav-pills .nav-pill--icon i {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* ---- Sticky footer + header flush + RTL alignment (safe defaults) */
 body {
   min-height: 100%;
