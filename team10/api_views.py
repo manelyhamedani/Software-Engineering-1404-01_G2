@@ -11,8 +11,8 @@ from .models import Trip
 
 
 @require_http_methods(["POST"])
-@csrf_exempt  # CSRF handled by central system
-# @api_login_required  # Requires user authentication from central system
+@csrf_exempt
+@api_login_required
 def create_trip_api(request):
     """API endpoint to create a new trip. Requires authentication."""
     try:
