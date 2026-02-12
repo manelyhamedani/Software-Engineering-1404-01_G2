@@ -172,9 +172,7 @@ class PlacesService {
 
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: authHelper.getAuthHeaders(),
         body: JSON.stringify(filters),
       });
 

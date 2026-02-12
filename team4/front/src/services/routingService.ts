@@ -1,5 +1,5 @@
 import { API_CONFIG } from '../config/api';
-
+import { authHelper } from '../utils/authHelper';
 const NAVIGATION_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.TEAM_PREFIX}/api/navigation/route/`;
 const REGIONS_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.TEAM_PREFIX}/api/regions/search`;
 const FACILITIES_URL = `${API_CONFIG.BASE_URL}${API_CONFIG.TEAM_PREFIX}/api/facilities`;
@@ -53,9 +53,7 @@ export const routingService = {
         // Search facilities by name
         fetch(`${FACILITIES_URL}/search/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: authHelper.getAuthHeaders(),
           body: JSON.stringify({
             name: query
           })
@@ -125,9 +123,7 @@ export const routingService = {
   ): Promise<RouteResponse> {
     const response = await fetch(NAVIGATION_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: authHelper.getAuthHeaders(),
       body: JSON.stringify({
         type,
         origin: `${origin.lat},${origin.lng}`,
