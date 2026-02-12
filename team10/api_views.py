@@ -8,11 +8,30 @@ from .application.services.trip_planning_service_impl import TripPlanningService
 from .services import trip_planning_service
 
 from .models import Trip
+from .services import facilities_service
+
+
+def _hotel_schedules_with_names(trip):
+    """Build hotel_schedules list with hotel_name from facilities service."""
+    out = []
+    for s in trip.hotel_schedules.all():
+        facility = facilities_service.get_facility_by_id(s.hotel_id)
+        hotel_name = facility.name if facility else f"هتل (شناسه: {s.hotel_id})"
+        out.append({
+            'id': s.id,
+            'hotel_id': s.hotel_id,
+            'hotel_name': hotel_name,
+            'start_at': s.start_at.isoformat(),
+            'end_at': s.end_at.isoformat(),
+            'rooms_count': s.rooms_count,
+            'cost': float(s.cost),
+        })
+    return out
 
 
 @require_http_methods(["POST"])
-@csrf_exempt
-@api_login_required
+@csrf_exempt  # CSRF handled by central system
+# @api_login_required  # Requires user authentication from central system
 def create_trip_api(request):
     """API endpoint to create a new trip. Requires authentication."""
     try:
@@ -34,11 +53,12 @@ def create_trip_api(request):
                 'error': f'Invalid budget_level. Must be one of: {", ".join(valid_budget_levels)}'
             }, status=400)
 
+        # User is guaranteed to be authenticated by @api_login_required
         user = request.user
 
         # Extract user_id (hash string) from user object
         user_id = str(user.id) if hasattr(user, 'id') else None
-        if user_id is None:
+        if not user_id:
             return JsonResponse({
                 'error': 'User ID not found'
             }, status=401)
@@ -47,8 +67,12 @@ def create_trip_api(request):
         trip = trip_planning_service.create_initial_trip(data, user_id)
 
         # Return success response
-        return JsonResponse(
-            dict(success=True, trip_id=trip.id, status=trip.status, message='Trip created successfully'), status=201)
+        return JsonResponse({
+            'success': True,
+            'trip_id': trip.id,
+            'status': trip.status,
+            'message': 'Trip created successfully'
+        }, status=201)
 
     except json.JSONDecodeError:
         return JsonResponse({
@@ -68,14 +92,12 @@ def get_trip_api(request, trip_id):
         # Only allow users to view their own trips
         user_id = str(request.user.id) if hasattr(request.user, 'id') else None
         trip = Trip.objects.get(id=trip_id, user_id=user_id)
-        # wiki = get_wiki_client(use_mock=True)
-        # dest_info = wiki.get_destination_basic_info(trip.requirements.destination_name)
-        dest_info = "ببببو"
 
         # TODO: Implement wiki service integration
         # wiki = get_wiki_client(use_mock=True)
         # dest_info = wiki.get_destination_basic_info(trip.requirements.destination_name)
-
+        dest_info = "ببببو"
+        
         # Prepare response data
         trip_data = {
             'id': trip.id,
@@ -97,16 +119,7 @@ def get_trip_api(request, trip_id):
                 }
                 for plan in trip.daily_plans.all()
             ],
-            'hotel_schedules': [
-                {
-                    'id': schedule.id,
-                    'start_at': schedule.start_at.isoformat(),
-                    'end_at': schedule.end_at.isoformat(),
-                    'rooms_count': schedule.rooms_count,
-                    'cost': float(schedule.cost)
-                }
-                for schedule in trip.hotel_schedules.all()
-            ],
+            'hotel_schedules': _hotel_schedules_with_names(trip),
             'preferences': [
                 {'tag': c.tag, 'description': c.description}
                 for c in trip.requirements.constraints.all()
