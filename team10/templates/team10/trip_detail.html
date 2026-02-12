@@ -1,4 +1,4 @@
-﻿{% extends "team10/base.html" %}
+{% extends "team10/base.html" %}
 {% load static %}
 {% block title %}جزئیات سفر | ایران‌نما{% endblock %}
 
@@ -26,7 +26,7 @@
                 </div>
                 <div class="t10-info-item">
                     <span class="t10-info-label">تاریخ شروع</span>
-                    <span class="t10-info-value">{{ trip.requirements.start_at|date:"Y-m-d"|default:"—" }}</span>
+                    <span class="t10-info-value">{{ start_at_jalali|default:"—" }}</span>
                 </div>
                 <div class="t10-info-item">
                     <span class="t10-info-label">وضعیت</span>
