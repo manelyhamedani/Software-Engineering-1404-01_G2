@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -15,6 +15,7 @@ from .serializers import (
     ShareLinkSerializer, VoteSerializer, TripReviewSerializer,
     UserMediaSerializer
 )
+from .pdf_generator import generate_trip_pdf, get_filename_for_trip
 
 
 def test(request):
@@ -171,6 +172,105 @@ class TripViewSet(viewsets.ViewSet):
         trips = TripService.search_trips(query)
         serializer = TripListSerializer(trips, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def history(self, request):
+        """
+        GET /api/trips/history/ - Get trip history for logged-in user
+        
+        Returns all trips for the authenticated user, sorted by date.
+        Past trips are marked with is_past flag for UI styling.
+        """
+        user_id = request.query_params.get('user_id')
+        
+        if not user_id:
+            return Response(
+                {"error": "user_id parameter required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        trips = TripService.get_all_trips(user_id=int(user_id))
+        serializer = TripListSerializer(trips, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def claim(self, request, pk=None):
+        """
+        POST /api/trips/{id}/claim/ - Claim a guest trip as logged-in user
+        
+        Converts a guest trip (user_id=null) to a user trip.
+        Use case: User creates trip without login, then logs in and claims it.
+        
+        Request body: {"user_id": 123}
+        """
+        user_id = request.data.get('user_id')
+        
+        if not user_id:
+            return Response(
+                {"error": "user_id required in request body"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        trip = TripService.get_trip_detail(int(pk))
+        
+        if not trip:
+            return Response(
+                {"error": "Trip not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if trip.user_id is not None:
+            return Response(
+                {"error": "Trip is already claimed by another user"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Claim the trip
+        updated_trip = TripService.update_trip(int(pk), {'user_id': int(user_id)})
+        
+        return Response(
+            TripDetailSerializer(updated_trip).data,
+            status=status.HTTP_200_OK
+        )
+    
+    @action(detail=True, methods=['get'])
+    def export_pdf(self, request, pk=None):
+        """
+        GET /api/trips/{id}/export/pdf/ - Export trip to PDF
+        
+        Generates a PDF file with trip timeline, items, and cost breakdown.
+        Suitable for printing or sharing offline.
+        
+        Returns: PDF file as attachment
+        """
+        trip = TripService.get_trip_detail(int(pk))
+        
+        if not trip:
+            return Response(
+                {"error": "Trip not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        try:
+            # Generate PDF
+            pdf_buffer = generate_trip_pdf(trip)
+            filename = get_filename_for_trip(trip)
+            
+            # Return as downloadable file
+            response = FileResponse(
+                pdf_buffer,
+                content_type='application/pdf',
+                as_attachment=True,
+                filename=filename
+            )
+            
+            return response
+            
+        except Exception as e:
+            return Response(
+                {"error": f"PDF generation failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class TripDayViewSet(viewsets.ViewSet):
@@ -366,3 +466,70 @@ class TripItemViewSet(viewsets.ViewSet):
         
         TripItemService.reorder_items(int(day_id), item_order)
         return Response({"success": True})
+    
+    @action(detail=True, methods=['post'])
+    def replace(self, request, pk=None):
+        """
+        POST /api/trip-items/{id}/replace/ - Replace item with alternative
+        
+        Replaces current item with a new place from alternatives list.
+        New place data should come from Mohammad Hossein's Facility Service.
+        
+        Request body: {
+            "new_place_id": "string",
+            "new_place_data": {
+                "title": "string",
+                "category": "string",
+                "address": "string",
+                "lat": float,
+                "lng": float,
+                "estimated_cost": float
+            }
+        }
+        
+        The new item will keep the same time slot as the replaced item.
+        """
+        new_place_id = request.data.get('new_place_id')
+        new_place_data = request.data.get('new_place_data', {})
+        
+        if not new_place_id:
+            return Response(
+                {"error": "new_place_id required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get current item
+        item = TripItemService.get_item_by_id(int(pk))
+        
+        if not item:
+            return Response(
+                {"error": "Item not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Prepare update data - keep same time, update place details
+        update_data = {
+            'place_ref_id': new_place_id,
+            'title': new_place_data.get('title', item.title),
+            'category': new_place_data.get('category', item.category),
+            'address_summary': new_place_data.get('address', item.address_summary),
+            'estimated_cost': new_place_data.get('estimated_cost', item.estimated_cost)
+        }
+        
+        if 'lat' in new_place_data:
+            update_data['lat'] = new_place_data['lat']
+        if 'lng' in new_place_data:
+            update_data['lng'] = new_place_data['lng']
+        
+        try:
+            updated_item = TripItemService.update_item(int(pk), update_data)
+            
+            return Response(
+                TripItemSerializer(updated_item).data,
+                status=status.HTTP_200_OK
+            )
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )

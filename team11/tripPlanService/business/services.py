@@ -140,6 +140,11 @@ class TripItemService:
         return list(TripItemRepository.get_by_day(day_id))
     
     @staticmethod
+    def get_item_by_id(item_id: int) -> Optional[TripItem]:
+        """Get a specific item by ID"""
+        return TripItemRepository.get_by_id(item_id)
+    
+    @staticmethod
     def create_item(day_id: int, data: Dict[str, Any]) -> TripItem:
         """Create a new item for a day"""
         if not data.get('place_ref_id'):
