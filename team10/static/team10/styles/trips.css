@@ -192,10 +192,7 @@
   align-items: center;
 }
 
-.t10-filter-card .t10-filter-grid--bottom .t10-field {
-  flex: 1;
-  min-width: 0;
-}
+.t10-filter-card .t10-filter-grid--bottom .t10-field { flex: 0 1 550px; }
 
 /* Trips list bottom row compact + button nudge */
 .t10-filter-card .t10-filter-grid--bottom{
