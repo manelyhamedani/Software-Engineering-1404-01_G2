@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from core.auth import api_login_required
 from .authentication import JWTMiddlewareAuthentication
-from .models import Article, Version, Vote
+from .models import Article, Version, Vote, Tag
 from celery import chord
 from .serializers import (
     ArticleSerializer, VersionSerializer, CreateArticleSerializer,
@@ -20,6 +20,7 @@ from .serializers import (
 )
 from .tasks.tasks import summarize_article, tag_article
 from .tasks.indexing import index_article_version, search_articles_semantic
+from django.db.models import Count
 
 TEAM_NAME = "team2"
 
@@ -242,3 +243,78 @@ def search_articles(request):
 
     resp = Response({"query": query, "results": results})
     return resp
+
+
+@api_view(['GET'])
+@authentication_classes(AUTH_CLASSES)
+@permission_classes(PERM_CLASSES)
+def top_tags(request):
+    try:
+        articles_limit = int(request.GET.get("articles_limit", 10))
+        tags_limit = int(request.GET.get("tags_limit", 10))
+    except ValueError:
+        return Response({"detail": "Invalid limit parameter."}, status=400)
+
+    top_articles = (
+        Article.objects
+        .order_by('-score')[:articles_limit]
+    )
+
+    tags = (
+        Tag.objects
+        .filter(versions__current_of__in=top_articles)
+        .annotate(usage_count=Count('versions__current_of'))
+        .order_by('-usage_count')[:tags_limit]
+    )
+
+    data = [
+        {
+            "name": tag.name,
+            "count": tag.usage_count
+        }
+        for tag in tags
+    ]
+
+    return Response({
+        "articles_considered": articles_limit,
+        "top_tags": data
+    })
+
+
+@api_view(['GET'])
+@authentication_classes(AUTH_CLASSES)
+@permission_classes(PERM_CLASSES)
+def search_articles_by_tag(request):
+    tag_name = request.GET.get("tag", "").strip()
+    if not tag_name:
+        return Response({"detail": "Tag parameter missing"}, status=400)
+
+    from .tasks.indexing import _get_es, INDEX_NAME
+
+    search_body = {
+        "query": {
+            "term": {
+                "tags.keyword": {
+                    "value": tag_name
+                }
+            }
+        },
+        "size": 20 
+    }
+
+    try:
+        resp = _get_es().search(index=INDEX_NAME, body=search_body)
+    except Exception as e:
+        return Response({"detail": f"Elasticsearch error: {str(e)}"}, status=500)
+
+    results = []
+    for hit in resp["hits"]["hits"]:
+        results.append({
+            "article_name": hit["_source"]["article_name"],
+            "version_name": hit["_source"]["version_name"],
+            "score": hit["_score"],
+            "summary": hit["_source"]["summary"],
+            "tags": hit["_source"]["tags"],
+        })
+
+    return Response({"tag": tag_name, "results": results})

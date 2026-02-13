@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$TeamPort = @{
+$TeamPorts = @{
   1  = 9101
   2  = 9106
   3  = 9111
@@ -23,7 +23,7 @@ docker compose up -d --build
 foreach ($t in 1..13) {
   $composePath = "..\team$t\docker-compose.yml"
   if (Test-Path $composePath) {
-    $env:TEAM_PORT = "$($TeamPort[$t])"
+    $env:TEAM_PORT = "$($TeamPorts[$t])"
     Write-Host ("Starting team{0} on port {1} ..." -f $t, $env:TEAM_PORT)
     docker compose -f $composePath up -d --build
   } else {
@@ -34,7 +34,7 @@ foreach ($t in 1..13) {
 Write-Host "Done."
 Write-Host "Core: http://localhost:8000/"
 foreach ($t in 1..13) {
-  if ($TeamPort.ContainsKey($t)) {
-    Write-Host ("Team{0}: http://localhost:{1}/" -f $t, $TeamPort[$t])
+  if ($TeamPorts.ContainsKey($t)) {
+    Write-Host ("Team{0}: http://localhost:{1}/" -f $t, $TeamPorts[$t])
   }
 }
