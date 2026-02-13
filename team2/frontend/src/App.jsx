@@ -1,3 +1,5 @@
+import ArticleDetail from "./pages/ArticleDetail";
+
 import { Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
@@ -20,6 +22,9 @@ export default function App() {
         <Route path="/articles/:name" element={<ArticlePage />} />
         <Route path="/versions/:name/edit" element={<EditVersionPage />} />
         <Route path="/versions/:name/preview" element={<PreviewVersionPage />} />
+        <Route path="/articles/:name/read" element={<ArticleDetail />} />
+
+        
       </Routes>
     </div>
   )
