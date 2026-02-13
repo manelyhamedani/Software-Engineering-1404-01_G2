@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-declare -A TEAM_PORT=(
+declare -A TEAM_PORTS=(
   [1]=9101
   [2]=9106
   [3]=9111
@@ -24,7 +24,7 @@ docker compose up -d --build
 for t in $(seq 1 13); do
   compose="../team${t}/docker-compose.yml"
   if [[ -f "$compose" ]]; then
-    export TEAM_PORT="${TEAM_PORT[$t]}"
+    export TEAM_PORT="${TEAM_PORTS[$t]}"
     echo "Starting team$t on port $TEAM_PORT ..."
     docker compose -f "$compose" up -d --build
   else
@@ -35,7 +35,7 @@ done
 echo "Done."
 echo "Core: http://localhost:8000/"
 for t in $(seq 1 13); do
-  if [[ -n "${TEAM_PORT[$t]:-}" ]]; then
-    echo "Team$t: http://localhost:${TEAM_PORT[$t]}/"
+  if [[ -n "${TEAM_PORTS[$t]:-}" ]]; then
+    echo "Team$t: http://localhost:${TEAM_PORTS[$t]}/"
   fi
 done

@@ -8,18 +8,18 @@ from django.db import transaction
 from rest_framework import status
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from core.auth import api_login_required
 from .authentication import JWTMiddlewareAuthentication
 from .models import Article, Version, Vote
-from celery import chord
+from celery import chord, chain
 from .serializers import (
     ArticleSerializer, VersionSerializer, CreateArticleSerializer,
     CreateVersionFromVersionSerializer, CreateEmptyVersionSerializer, VoteSerializer,
 )
 from .tasks.tasks import summarize_article, tag_article
-from .tasks.indexing import index_article_version, search_articles_semantic
+from .tasks.indexing import index_article_version, search_articles_semantic, find_recent_articles, find_top_articles
 
 TEAM_NAME = "team2"
 
@@ -172,11 +172,17 @@ def publish_version(request, version_name):
 
     article.current_version = version
     article.save()
-
+    # tag_article(article.name)
+    # summarize_article(article.name)
+    # index_article_version(version.name)
+    # chain(
+    #     tag_article.s(article.name),
+    #     summarize_article.s(article.name),
+    #     index_article_version.s(version.name)
+    # ).apply_async()
     chord(
         [tag_article.s(article.name), summarize_article.s(article.name)]
     )(index_article_version.s(version.name))
-
     return Response(ArticleSerializer(article).data)
 
 
@@ -242,3 +248,18 @@ def search_articles(request):
 
     resp = Response({"query": query, "results": results})
     return resp
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def top_articles(request):
+    limit = int(request.GET.get("limit", 5))
+    articles = find_top_articles(limit)
+    return Response(ArticleSerializer(articles, many=True).data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def recent_articles(request):
+    limit = int(request.GET.get("limit", 5))
+    articles = find_recent_articles(limit)
+    return Response(ArticleSerializer(articles, many=True).data)

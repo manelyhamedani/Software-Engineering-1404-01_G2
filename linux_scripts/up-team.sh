@@ -7,7 +7,7 @@ if [[ -z "$TEAM" ]]; then
   exit 1
 fi
 
-declare -A TEAM_PORT=(
+declare -A TEAM_PORTS=(
   [1]=9101
   [2]=9106
   [3]=9111
@@ -23,7 +23,7 @@ declare -A TEAM_PORT=(
   [13]=9161
 )
 
-if [[ -z "${TEAM_PORT[$TEAM]:-}" ]]; then
+if [[ -z "${TEAM_PORTS[$TEAM]:-}" ]]; then
   echo "Invalid team number: $TEAM"
   exit 1
 fi
@@ -34,7 +34,7 @@ if [[ ! -f "$compose" ]]; then
   exit 1
 fi
 
-export TEAM_PORT="${TEAM_PORT[$TEAM]}"
+export TEAM_PORT="${TEAM_PORTS[$TEAM]}"
 echo "Starting team$TEAM on port $TEAM_PORT ..."
 docker compose -f "$compose" up -d --build
-echo "Team$TEAM: http://localhost:${TEAM_PORT[$TEAM]}/"
+echo "Team$TEAM: http://localhost:${TEAM_PORTS[$TEAM]}/"
