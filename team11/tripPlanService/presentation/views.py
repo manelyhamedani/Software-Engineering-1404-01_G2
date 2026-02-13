@@ -188,15 +188,16 @@ class TripViewSet(viewsets.ViewSet):
         Past trips are marked with is_past flag for UI styling.
         Requires authentication via JWT token.
         """
-        # Check if user is authenticated
-        if not request.user or not request.user.is_authenticated:
+        # Check if user is authenticated via JWT middleware
+        user_id = getattr(request, 'jwt_user_id', None)
+        if user_id is None:
             return Response(
                 {"error": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
         # Get trips for authenticated user
-        trips = TripService.get_all_trips(user_id=request.user.id)
+        trips = TripService.get_all_trips(user_id=user_id)
         serializer = TripListSerializer(trips, many=True)
         return Response(serializer.data)
 
@@ -209,8 +210,9 @@ class TripViewSet(viewsets.ViewSet):
         Use case: User creates trip without login, then logs in and claims it.
         Requires authentication via JWT token.
         """
-        # Check if user is authenticated
-        if not request.user or not request.user.is_authenticated:
+        # Check if user is authenticated via JWT middleware
+        user_id = getattr(request, 'jwt_user_id', None)
+        if user_id is None:
             return Response(
                 {"error": "Authentication required"},
                 status=status.HTTP_401_UNAUTHORIZED
@@ -234,7 +236,7 @@ class TripViewSet(viewsets.ViewSet):
 
         # Claim the trip for authenticated user
         updated_trip = TripService.update_trip(
-            int(pk), {'user_id': request.user.id})
+            int(pk), {'user_id': user_id})
 
         return Response(
             TripDetailSerializer(updated_trip).data,
