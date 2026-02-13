@@ -312,13 +312,7 @@ class TripViewSet(viewsets.ViewSet):
                 travel_style=travel_style
             )
 
-            # 6. اختصاص به کاربر (در صورت وجود)
-            if user_id:
-                try:
-                    trip.user_id = int(user_id)
-                    trip.save(update_fields=['user_id'])
-                except (ValueError, TypeError):
-                    pass  # Invalid user_id, keep as guest trip
+            # 6. user قبلاً در TripGenerator.generate() اختصاص داده شده
 
             # 7. برگرداندن نتیجه
             serializer = TripDetailSerializer(trip)
