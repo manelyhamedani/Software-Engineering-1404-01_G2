@@ -167,12 +167,10 @@ class TripReviewSerializer(serializers.ModelSerializer):
 class UserMediaSerializer(serializers.ModelSerializer):
     """Serializer for UserMedia model"""
 
-    username = serializers.CharField(source='user.username', read_only=True)
-
     class Meta:
         model = UserMedia
         fields = [
-            'media_id', 'trip', 'user', 'username',
+            'media_id', 'trip', 'user_id',
             'media_url', 'caption', 'media_type', 'uploaded_at'
         ]
         read_only_fields = ['media_id', 'uploaded_at']

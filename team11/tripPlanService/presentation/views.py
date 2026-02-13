@@ -325,19 +325,12 @@ class TripViewSet(viewsets.ViewSet):
         if travel_style not in valid_styles:
             travel_style = 'SOLO'
 
-        user_instance = None
-        if user_id:
-            try:
-                user_instance = User.objects.get(pk=user_id)
-            except User.DoesNotExist:
-                user_instance = None  # ادامه به عنوان مهمان
-
         try:
             # 5. تولید سفر با TripGenerator
             generator = TripGenerator()
 
             trip = generator.generate(
-                user=user_instance,
+                user_id=user_id,
                 province=province,
                 city=city,
                 interests=interests,
